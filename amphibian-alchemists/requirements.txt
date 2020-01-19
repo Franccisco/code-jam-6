@@ -1,3 +1,4 @@
+# Kivy
 certifi==2019.11.28
 chardet==3.0.4
 docutils==0.16
@@ -8,3 +9,7 @@ py-enigma==0.1
 Pygments==2.5.2
 requests==2.22.0
 urllib3==1.25.7
+
+# Server
+Flask==1.1.1
+requests-oauthlib==1.3.0

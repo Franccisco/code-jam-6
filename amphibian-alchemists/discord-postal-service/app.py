@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, session, redirect, request, url_for, jsonify
+from flask import Flask, jsonify, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 

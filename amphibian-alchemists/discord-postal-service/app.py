@@ -1,9 +1,11 @@
 import os
 from flask import Flask, g, session, redirect, request, url_for, jsonify
 from requests_oauthlib import OAuth2Session
+from dotenv import load_dotenv
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
-OAUTH2_CLIENT_ID = os.environ['OAUTH2_CLIENT_ID']
-OAUTH2_CLIENT_SECRET = os.environ['OAUTH2_CLIENT_SECRET']
+OAUTH2_CLIENT_ID = os.getenv('OAUTH2_CLIENT_ID')
+OAUTH2_CLIENT_SECRET = os.getenv('OAUTH2_CLIENT_SECRET')
 OAUTH2_REDIRECT_URI = 'http://localhost:5000/callback'
 
 API_BASE_URL = os.environ.get('API_BASE_URL', 'https://discordapp.com/api')
@@ -12,7 +14,7 @@ TOKEN_URL = API_BASE_URL + '/oauth2/token'
 
 app = Flask(__name__)
 app.debug = True
-app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 if 'http://' in OAUTH2_REDIRECT_URI:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
@@ -39,10 +41,8 @@ def make_session(token=None, state=None, scope=None):
 
 @app.route('/')
 def index():
-    scope = request.args.get(
-        'scope',
-        'identify email connections guilds guilds.join')
-    discord = make_session(scope=scope.split(' '))
+    scope = request.args.get('scope', 'identify')
+    discord = make_session(scope=scope)
     authorization_url, state = discord.authorization_url(AUTHORIZATION_BASE_URL)
     session['oauth2_state'] = state
     return redirect(authorization_url)
@@ -65,10 +65,9 @@ def callback():
 def me():
     discord = make_session(token=session.get('oauth2_token'))
     user = discord.get(API_BASE_URL + '/users/@me').json()
-    guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
-    connections = discord.get(API_BASE_URL + '/users/@me/connections').json()
-    return jsonify(user=user, guilds=guilds, connections=connections)
+    return jsonify(user=user)
 
 
 if __name__ == '__main__':
+    load_dotenv(dotenv_path=env_path)
     app.run()

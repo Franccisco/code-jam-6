@@ -1,7 +1,7 @@
 import os
-from flask import Flask, g, session, redirect, request, url_for, jsonify
-from requests_oauthlib import OAuth2Session
 from dotenv import load_dotenv
+from flask import Flask, session, redirect, request, url_for, jsonify
+from requests_oauthlib import OAuth2Session
 env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
 OAUTH2_CLIENT_ID = os.getenv('OAUTH2_CLIENT_ID')
@@ -14,7 +14,7 @@ TOKEN_URL = API_BASE_URL + '/oauth2/token'
 
 app = Flask(__name__)
 app.debug = True
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "setsecretkeyinnewdotenvfile")
 
 if 'http://' in OAUTH2_REDIRECT_URI:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'

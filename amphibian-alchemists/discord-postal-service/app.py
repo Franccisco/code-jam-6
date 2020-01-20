@@ -1,7 +1,9 @@
 import os
+
 from dotenv import load_dotenv
 from flask import Flask, jsonify, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
+
 env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
 OAUTH2_CLIENT_ID = os.getenv('OAUTH2_CLIENT_ID')

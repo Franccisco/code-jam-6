@@ -33,7 +33,10 @@ def make_session(token=None, state=None, scope=None):
         state=state,
         scope=scope,
         redirect_uri=OAUTH2_REDIRECT_URI,
-        auto_refresh_kwargs={"client_id": OAUTH2_CLIENT_ID, "client_secret": OAUTH2_CLIENT_SECRET,},
+        auto_refresh_kwargs={
+            "client_id": OAUTH2_CLIENT_ID,
+            "client_secret": OAUTH2_CLIENT_SECRET,
+        },
         auto_refresh_url=TOKEN_URL,
         token_updater=token_updater,
     )
@@ -54,7 +57,9 @@ def callback():
         return request.values["error"]
     discord = make_session(state=session.get("oauth2_state"))
     token = discord.fetch_token(
-        TOKEN_URL, client_secret=OAUTH2_CLIENT_SECRET, authorization_response=request.url
+        TOKEN_URL,
+        client_secret=OAUTH2_CLIENT_SECRET,
+        authorization_response=request.url,
     )
     session["oauth2_token"] = token
     return redirect(url_for(".me"))

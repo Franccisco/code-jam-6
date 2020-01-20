@@ -16,7 +16,7 @@ cities = [
     "riverdale",
     "seaside-town",
     "springfield",
-    "zion"
+    "zion",
 ]
 
 

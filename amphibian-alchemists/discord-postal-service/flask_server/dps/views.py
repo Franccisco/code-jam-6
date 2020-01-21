@@ -64,4 +64,5 @@ def me():
     user = discord.get(API_BASE_URL + "/users/@me").json()
     return jsonify(user=user)
 
+
 # TODO Add a delete user in case private key not saved

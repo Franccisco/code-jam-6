@@ -34,9 +34,7 @@ class Profile(db.Model):
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=False)
-    sender_id = db.Column(
-        db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True
-    )
+    sender_id = db.Column(db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True)
     receiver_id = db.Column(
         db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True
     )

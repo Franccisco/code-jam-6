@@ -7,7 +7,6 @@ Create a new application. We've called it Discord Postal Service. Copy your Clie
 When that's done, clone this repository. In a terminal/cmd, go to the `flask_server` directory and do the following commands:
 
 ```
-flask db init
 flask db migrate
 flask db upgrade
 ```

@@ -10,7 +10,7 @@ from flask import current_app, jsonify, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 from sqlalchemy import exc
 
-from .models import Message, MessageQueue, Profile, db, cities
+from .models import Message, MessageQueue, Profile, cities, db
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
@@ -155,10 +155,10 @@ def decrypt_message(encoded_encrypted_msg, privatekey):
     return decoded_decrypted_msg
 
 
-ALPHABET = string.ascii_uppercase + string.digits + string.ascii_lowercase + '-_'
+ALPHABET = string.ascii_uppercase + string.digits + string.ascii_lowercase + "-_"
 ALPHABET_REVERSE = dict((c, i) for (i, c) in enumerate(ALPHABET))
 BASE = len(ALPHABET)
-SIGN_CHARACTER = '$'
+SIGN_CHARACTER = "$"
 
 
 def num_encode(n):
@@ -168,8 +168,9 @@ def num_encode(n):
     while True:
         n, r = divmod(n, BASE)
         s.append(ALPHABET[r])
-        if n == 0: break
-    return ''.join(reversed(s))
+        if n == 0:
+            break
+    return "".join(reversed(s))
 
 
 def num_decode(s):
@@ -184,12 +185,14 @@ def num_decode(s):
 @current_app.route("/add-message-to-queue", methods=["POST"])
 def add_message_to_queue():
     """
-    This is a filtration system so that users don't flood others' mailboxes with messages.
+    This is a filtration system so that users don't flood others'
+    mailboxes with messages.
     I.e. there is a reCAPTCHA v2 system (does not track users).
 
-    This route is in cooperation with the Kivy + Python Discord Code Jam 6 Amphibian Alchemists project.
-    You can most certainly remove this route and MessageQueue and reconfigure the send_message route
-    to avoid this functionality.
+    This route is in cooperation with the
+    Kivy + Python Discord Code Jam 6 Amphibian Alchemists project.
+    You can most certainly remove this route and MessageQueue and
+    reconfigure the send_message route to avoid this functionality.
     """
     message = str(request.json.get("message"))
     if len(message) > 20000:

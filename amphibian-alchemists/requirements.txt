@@ -15,6 +15,7 @@ Mako==1.1.1
 MarkupSafe==1.1.1
 oauthlib==3.1.0
 py-enigma==0.1
+pycryptodome==3.9.4
 Pygments==2.5.2
 python-dateutil==2.8.1
 python-dotenv==0.10.5

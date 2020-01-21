@@ -20,7 +20,9 @@ cities = [
 
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.String(40), nullable=False, unique=True, index=True)  # User#Discriminator
+    user = db.Column(
+        db.String(40), nullable=False, unique=True, index=True
+    )  # User#Discriminator
     city = db.Column(db.SmallInteger, default=randint(0, 11), nullable=False)
     public_key = db.Column(db.String, nullable=False)
     # Relationships
@@ -28,13 +30,18 @@ class Profile(db.Model):
         "Message", backref="sender", lazy="dynamic", foreign_keys="Message.sender_id"
     )
     received_message = db.relationship(
-        "Message", backref="receiver", lazy="dynamic", foreign_keys="Message.receiver_id"
+        "Message",
+        backref="receiver",
+        lazy="dynamic",
+        foreign_keys="Message.receiver_id",
     )
 
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=False)
-    sender_id = db.Column(db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True)
+    sender_id = db.Column(
+        db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True
+    )
     receiver_id = db.Column(
         db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True
     )

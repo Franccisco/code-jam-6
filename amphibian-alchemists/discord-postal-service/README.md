@@ -16,7 +16,7 @@ You as a resident deliver the message to the post office. Other players as mail(
 
 The encrypted message will be sent in the form of a link; inside the link is a plain website that will show the text to only that one user (using Discord oauth system so signup is not required).
 
-The messages that are "caught" while being delivered will be sent in clear text in the server that the receiver's address (i.e. text chat) is located in.
+The messages that are "caught" while being delivered will be sent in clear text in the server that the receiver's address (i.e. text chat) is located in. Because Discord uses an HTML parser, the clear text will be from a link as well but it will show the message in the chat.
 
 ----
 ### How does it work

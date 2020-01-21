@@ -1,2 +1,2 @@
 app/data/
-discord-postal-service/.env
+discord-postal-service/flask_server/.env

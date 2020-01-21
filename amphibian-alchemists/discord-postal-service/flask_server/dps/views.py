@@ -1,22 +1,20 @@
 import os
 
-from dotenv import load_dotenv
-from flask import Flask, jsonify, redirect, request, session, url_for
+from flask import current_app, jsonify, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 
-env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+from .models import Message, PasswordLink, Profile
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
-OAUTH2_REDIRECT_URI = "http://localhost:5000/callback"
+if current_app.debug:
+    OAUTH2_REDIRECT_URI = "http://localhost:5000/callback"
+else:
+    OAUTH2_REDIRECT_URI = "https://blah.com"
 
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://discordapp.com/api")
 AUTHORIZATION_BASE_URL = API_BASE_URL + "/oauth2/authorize"
 TOKEN_URL = API_BASE_URL + "/oauth2/token"
-
-app = Flask(__name__)
-app.debug = True
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "setsecretkeyinnewdotenvfile")
 
 if "http://" in OAUTH2_REDIRECT_URI:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "true"
@@ -33,16 +31,13 @@ def make_session(token=None, state=None, scope=None):
         state=state,
         scope=scope,
         redirect_uri=OAUTH2_REDIRECT_URI,
-        auto_refresh_kwargs={
-            "client_id": OAUTH2_CLIENT_ID,
-            "client_secret": OAUTH2_CLIENT_SECRET,
-        },
+        auto_refresh_kwargs={"client_id": OAUTH2_CLIENT_ID, "client_secret": OAUTH2_CLIENT_SECRET,},
         auto_refresh_url=TOKEN_URL,
         token_updater=token_updater,
     )
 
 
-@app.route("/")
+@current_app.route("/")
 def index():
     scope = request.args.get("scope", "identify")
     discord = make_session(scope=scope)
@@ -51,27 +46,22 @@ def index():
     return redirect(authorization_url)
 
 
-@app.route("/callback")
+@current_app.route("/callback")
 def callback():
     if request.values.get("error"):
         return request.values["error"]
     discord = make_session(state=session.get("oauth2_state"))
     token = discord.fetch_token(
-        TOKEN_URL,
-        client_secret=OAUTH2_CLIENT_SECRET,
-        authorization_response=request.url,
+        TOKEN_URL, client_secret=OAUTH2_CLIENT_SECRET, authorization_response=request.url,
     )
     session["oauth2_token"] = token
     return redirect(url_for(".me"))
 
 
-@app.route("/me")
+@current_app.route("/me")
 def me():
     discord = make_session(token=session.get("oauth2_token"))
     user = discord.get(API_BASE_URL + "/users/@me").json()
     return jsonify(user=user)
 
-
-if __name__ == "__main__":
-    load_dotenv(dotenv_path=env_path)
-    app.run()
+# TODO Add a delete user in case private key not saved

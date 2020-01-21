@@ -4,7 +4,6 @@ import logging
 from logging.config import fileConfig
 
 from alembic import context
-
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel

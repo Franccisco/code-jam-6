@@ -1,10 +1,6 @@
 from random import randint
 
-from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
-# from .. import app
-
-db = SQLAlchemy(current_app)
+from .. import db
 
 cities = [
     "basin-city",
@@ -39,10 +35,10 @@ class Profile(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=False)
     sender_id = db.Column(
-        db.Integer, db.ForeignKey("Profile.id", ondelete="SET NULL"), nullable=True
+        db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True
     )
     receiver_id = db.Column(
-        db.Integer, db.ForeignKey("Profile.id", ondelete="SET NULL"), nullable=True
+        db.Integer, db.ForeignKey(Profile.id, ondelete="SET NULL"), nullable=True
     )
     message = db.Column(db.String(1000000), nullable=False)
 

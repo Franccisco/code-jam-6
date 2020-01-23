@@ -1,11 +1,16 @@
 from flask_wtf import Form, RecaptchaField
-from wtforms import PasswordField, validators
+from wtforms import PasswordField, StringField, validators
 
 
 class RecaptchaForm(Form):
     """
     Used by password link and sending message.
     """
+    recaptcha = RecaptchaField()
+
+
+class SendMessageForm(Form):
+    receiver = StringField("TO: ", [validators.DataRequired()])
     recaptcha = RecaptchaField()
 
 

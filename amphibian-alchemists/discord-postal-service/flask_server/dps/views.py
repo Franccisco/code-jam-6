@@ -11,7 +11,8 @@ from requests_oauthlib import OAuth2Session
 from sqlalchemy import exc
 
 from .. import db_session
-from .forms import RecaptchaForm, ViewMessageForm
+from .discord_bot import send_receiver_mail
+from .forms import RecaptchaForm, SendMessageForm, ViewMessageForm
 from .models import Message, MessageQueue, PasswordLink, Profile, cities
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
@@ -237,14 +238,19 @@ def add_message_to_queue():
 @current_app.route("/send-message/<string: unique_id>", methods=["GET", "POST"])
 def send_message(unique_id):
     unique_id = num_decode(unique_id)
-    form = RecaptchaForm()
+    form = SendMessageForm()
     if form.validate_on_submit():
         instance = db_session.query(MessageQueue).get(MessageQueue=unique_id)
-        if instance is None:
+        receiver_instance = db_session.query(Profile.id).get(request.values.get("receiver"))
+        if instance is None or receiver_instance is None:
             return abort(404)
-        message = Message()
+        message = Message(receiver_id=receiver_instance.id)
         # TODO Call OAuth
         # TODO call Discord bot to send message
+        db_session.add(message)
+        db_session.delete(instance)
+        db_session.commit()
+        send_receiver_mail(mail_id=message.id, receiver_id=message.receiver_id)
         return jsonify(success="Check the server to make sure it sent!")
     elif request.method == "GET":
         return render_template("send_message.html", form=form)

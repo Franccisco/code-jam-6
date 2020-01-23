@@ -1,12 +1,11 @@
 from random import randint
 
-import discord
 from Crypto import Random
 from Crypto.PublicKey import RSA
 
 from .. import db_session, root_url
 from .. import discord_client as client
-from .models import MessageQueue, Message, PasswordLink, Profile, cities
+from .models import Message, PasswordLink, Profile, cities
 from .views import num_encode
 
 PERMISSIONS = [

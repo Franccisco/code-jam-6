@@ -6,14 +6,29 @@ from random import randint
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from flask import (abort, current_app, jsonify, redirect, render_template,  # noqa
-                   request, session, url_for)  # noqa
+
+from flask import (
+    abort,
+    current_app,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from requests_oauthlib import OAuth2Session
 
 from .. import db_session
 from .discord_bot import send_receiver_mail
 from .forms import RecaptchaForm, SendMessageForm, ViewMessageForm
-from .models import Message, MessageQueue, PasswordLink, Profile, cities
+from .models import (  # noqa  (FIXME: cities is imported but unused)
+    Message,
+    MessageQueue,
+    PasswordLink,
+    Profile,
+    cities,
+)
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")

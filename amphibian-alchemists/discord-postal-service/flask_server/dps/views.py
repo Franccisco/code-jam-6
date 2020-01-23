@@ -193,6 +193,8 @@ def get_key_pair(unique_id):
         instance = db_session.query(PasswordLink.id).get(PasswordLink=db_id)
         if instance is None:
             return abort(404)
+        db_session.delete(instance)
+        db_session.commit()
         return render_template("get_key_pair.html", public_key=instance.public,
                                private_key=instance.private)
     elif request.method == "GET":

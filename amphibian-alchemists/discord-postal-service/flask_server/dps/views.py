@@ -10,7 +10,8 @@ from flask import current_app, jsonify, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 from sqlalchemy import exc
 
-from .models import Message, MessageQueue, Profile, cities, db
+from .. import db_session
+from .models import Message, MessageQueue, PasswordLink, Profile, cities
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("OAUTH2_CLIENT_SECRET")
@@ -137,8 +138,8 @@ def me():
         private, public = generate_keys()
         city = cities[randint(0, len(cities))]
         user = Profile(user=full_username, city=city, public_key=public)
-        db.session.add(user)
-        db.session.commit()
+        db_session.add(user)
+        db_session.commit()
         # TODO Add bot so that permission to add tag to user is allowed
         return jsonify(user=user, private_key=private)
 
@@ -182,6 +183,22 @@ def num_decode(s):
     return n
 
 
+@current_app.route("/get-key-pair/<string: unique_id>", methods=["GET", "POST"])
+def get_key_pair(unique_id):
+    db_id = num_decode(unique_id)
+    instance = db_session.query(PasswordLink.id).get(PasswordLink=db_id)
+    # TODO create new template to show both keys after a
+    #  form recaptcha with POST is done
+    if instance is None:
+        return "HTTP 404"
+    elif request.method == "GET":
+        request.values.get("")
+        return "Render a form"
+    elif request.method == "POST":
+        return jsonify(private_key=instance.private,
+                       public_key=instance.public)
+
+
 @current_app.route("/add-message-to-queue", methods=["POST"])
 def add_message_to_queue():
     """
@@ -200,8 +217,8 @@ def add_message_to_queue():
     unique_id = randint(-9223372036854775808, 9223372036854775808)
     m = MessageQueue(message=message, id=unique_id)
     unique_id = num_encode(unique_id)
-    db.session.add(m)
-    db.session.commit()
+    db_session.add(m)
+    db_session.commit()
     return json.dumps(
         {"response": "success", "data": f"{request.url_root}send-message/{unique_id}"}
     )

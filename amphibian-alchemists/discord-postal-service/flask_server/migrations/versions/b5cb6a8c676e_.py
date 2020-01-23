@@ -32,9 +32,9 @@ def upgrade():
     )
     op.create_table(
         "profile",
-        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("id", sa.Integer(), autoincrement=False, nullable=False),
         sa.Column("user", sa.String(length=40), nullable=False),
-        sa.Column("city", sa.SmallInteger(), nullable=False),
+        sa.Column("city", sa.BigInteger(), nullable=False),
         sa.Column("public_key", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )

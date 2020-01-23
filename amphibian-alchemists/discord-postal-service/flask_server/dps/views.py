@@ -124,26 +124,7 @@ def me():
     """
     discord = make_session(token=session.get("oauth2_token"))
     user = discord.get(API_BASE_URL + "/users/@me").json()
-    full_username = user["username"] + "#" + user["discriminator"]
-    try:
-        # TODO Actually output useful info
-        user = Profile.query.get(user=full_username)
-        return jsonify(user)
-    except exc.SQLAlchemyError:
-        # TODO REMOVE! This is only for testing.
-        """
-        When we implement the bot, we will need to let it check
-        audit logs to see which user joins.
-        
-        When an exception arises, simply pass during production environment
-        """
-        private, public = generate_keys()
-        city = cities[randint(0, len(cities))]
-        user = Profile(user=full_username, city=city, public_key=public)
-        db_session.add(user)
-        db_session.commit()
-        # TODO Add bot so that permission to add tag to user is allowed
-        return jsonify(user=user, private_key=private)
+    return jsonify(user)
 
 
 def encrypt_message(a_message, publickey):
@@ -204,12 +185,12 @@ def get_key_pair(unique_id):
 
 
 @current_app.route("/send-message/discord-oauth/<string: unique_identifier>")
-def send_message_oauth():
+def send_message_oauth(unique_id):
     scope = request.args.get("scope", "identify")
     discord = make_session(scope=scope)
     authorization_url, state = discord.authorization_url(AUTHORIZATION_BASE_URL)
     session["oauth2_state"] = state
-    return redirect(request.url_root + "send-message/")
+    return redirect(request.url_root + "send-message/" + unique_id)
 
 
 @current_app.route("/add-message-to-queue", methods=["POST"])
@@ -240,15 +221,29 @@ def add_message_to_queue():
 @current_app.route("/send-message/<string: unique_id>", methods=["GET", "POST"])
 def send_message(unique_id):
     unique_id = num_decode(unique_id)
+
+    if request.values.get("error"):
+        return request.values["error"]
+    discord = make_session(state=session.get("oauth2_state"))
+    token = discord.fetch_token(
+        TOKEN_URL,
+        client_secret=OAUTH2_CLIENT_SECRET,
+        authorization_response=request.url,
+    )
+    session["oauth2_token"] = token
+    discord = make_session(token=session.get("oauth2_token"))
+    user = discord.get(API_BASE_URL + "/users/@me").json()
+
     form = SendMessageForm()
     if form.validate_on_submit():
         instance = db_session.query(MessageQueue).get(MessageQueue=unique_id)
-        receiver_instance = db_session.query(Profile.id).get(request.values.get("receiver"))
-        if instance is None or receiver_instance is None:
+        sender_instance = db_session.query(Profile.id).get(Profile=user["id"])
+        receiver_instance = db_session.query(Profile.id).get(Profile=request.values.get("receiver"))
+        if instance is None or receiver_instance is None or \
+                sender_instance is None:
             return abort(404)
-        message = Message(receiver_id=receiver_instance.id)
-        # TODO Call OAuth
-        # TODO call Discord bot to send message
+        message = Message(message=instance.message, sender_id=user["id"],
+                          receiver_id=receiver_instance.id)
         db_session.add(message)
         db_session.delete(instance)
         db_session.commit()

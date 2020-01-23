@@ -6,6 +6,7 @@ class RecaptchaForm(Form):
     """
     Used by password link and sending message.
     """
+
     recaptcha = RecaptchaField()
 
 

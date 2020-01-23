@@ -3,8 +3,9 @@ from random import randint
 from Crypto import Random
 from Crypto.PublicKey import RSA
 
-from .. import db_session, root_url
+from .. import db_session
 from .. import discord_client as client
+from .. import root_url
 from .models import Message, PasswordLink, Profile, cities
 from .views import num_encode
 
@@ -77,4 +78,3 @@ def send_receiver_mail(mail_id, receiver_id):
     if instance is not None:
         channel = client.get_channel(receiver_city)
         await channel.send(f"PONG <@{receiver_id}> {instance.message}")
-

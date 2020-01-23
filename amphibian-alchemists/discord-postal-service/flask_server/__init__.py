@@ -19,15 +19,13 @@ else:
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "setsecretkeyinnewdotenvfile")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 sqlite_path = "sqlite:///" + os.path.join(PROJECT_DIR, "app.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL"
-) or sqlite_path
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") or sqlite_path
 
 # Recaptcha
-app.config['RECAPTCHA_USE_SSL'] = False
-app.config['RECAPTCHA_PUBLIC_KEY'] = os.getenv("RECAPTCHA_PUBLIC_KEY")
-app.config['RECAPTCHA_PRIVATE_KEY'] = os.getenv("RECAPTCHA_PRIVATE_KEY")
-app.config['RECAPTCHA_OPTIONS'] = {'theme': 'black'}
+app.config["RECAPTCHA_USE_SSL"] = False
+app.config["RECAPTCHA_PUBLIC_KEY"] = os.getenv("RECAPTCHA_PUBLIC_KEY")
+app.config["RECAPTCHA_PRIVATE_KEY"] = os.getenv("RECAPTCHA_PRIVATE_KEY")
+app.config["RECAPTCHA_OPTIONS"] = {"theme": "black"}
 
 # Database
 db = SQLAlchemy(app)

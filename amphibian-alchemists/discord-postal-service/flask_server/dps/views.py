@@ -6,7 +6,16 @@ from random import randint
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from flask import abort, current_app, jsonify, redirect, render_template, request, session, url_for
+from flask import (
+    abort,
+    current_app,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from requests_oauthlib import OAuth2Session
 from sqlalchemy import exc
 
@@ -176,8 +185,11 @@ def get_key_pair(unique_id):
             return abort(404)
         db_session.delete(instance)
         db_session.commit()
-        return render_template("get_key_pair.html", public_key=instance.public,
-                               private_key=instance.private)
+        return render_template(
+            "get_key_pair.html",
+            public_key=instance.public,
+            private_key=instance.private,
+        )
     elif request.method == "GET":
         return render_template("key_pair_form.html", form=form)
     else:
@@ -238,12 +250,16 @@ def send_message(unique_id):
     if form.validate_on_submit():
         instance = db_session.query(MessageQueue).get(MessageQueue=unique_id)
         sender_instance = db_session.query(Profile.id).get(Profile=user["id"])
-        receiver_instance = db_session.query(Profile.id).get(Profile=request.values.get("receiver"))
-        if instance is None or receiver_instance is None or \
-                sender_instance is None:
+        receiver_instance = db_session.query(Profile.id).get(
+            Profile=request.values.get("receiver")
+        )
+        if instance is None or receiver_instance is None or sender_instance is None:
             return abort(404)
-        message = Message(message=instance.message, sender_id=user["id"],
-                          receiver_id=receiver_instance.id)
+        message = Message(
+            message=instance.message,
+            sender_id=user["id"],
+            receiver_id=receiver_instance.id,
+        )
         db_session.add(message)
         db_session.delete(instance)
         db_session.commit()

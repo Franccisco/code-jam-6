@@ -6,7 +6,7 @@ from Crypto.PublicKey import RSA
 
 from .. import db_session, root_url
 from .. import discord_client as client
-from .models import PasswordLink, Profile, cities
+from .models import MessageQueue, Message, PasswordLink, Profile, cities
 from .views import num_encode
 
 PERMISSIONS = [
@@ -70,4 +70,12 @@ async def on_member_join(member):
         f"somewhere, and DON'T LOSE IT!\n"
         f"{root_url}/get-password/{unique_id}"
     )
+
+
+def send_receiver_mail(mail_id, receiver_id):
+    receiver_city = db_session.query(Profile.city).get(Profile=receiver_id)
+    instance = db_session.query(Message.id).get(Message=mail_id)
+    if instance is not None:
+        channel = client.get_channel(receiver_city)
+        await channel.send(f"PONG <@{receiver_id}> {instance.message}")
 

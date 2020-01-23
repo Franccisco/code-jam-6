@@ -6,11 +6,12 @@ from random import randint
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from flask import current_app, jsonify, redirect, request, session, url_for
+from flask import abort, current_app, jsonify, redirect, render_template, request, session, url_for
 from requests_oauthlib import OAuth2Session
 from sqlalchemy import exc
 
 from .. import db_session
+from .forms import RecaptchaForm, ViewMessageForm
 from .models import Message, MessageQueue, PasswordLink, Profile, cities
 
 OAUTH2_CLIENT_ID = os.getenv("OAUTH2_CLIENT_ID")
@@ -185,18 +186,27 @@ def num_decode(s):
 
 @current_app.route("/get-key-pair/<string: unique_id>", methods=["GET", "POST"])
 def get_key_pair(unique_id):
-    db_id = num_decode(unique_id)
-    instance = db_session.query(PasswordLink.id).get(PasswordLink=db_id)
-    # TODO create new template to show both keys after a
-    #  form recaptcha with POST is done
-    if instance is None:
-        return "HTTP 404"
+    form = RecaptchaForm()
+    if form.validate_on_submit():
+        db_id = num_decode(unique_id)
+        instance = db_session.query(PasswordLink.id).get(PasswordLink=db_id)
+        if instance is None:
+            return abort(404)
+        return render_template("get_key_pair.html", public_key=instance.public,
+                               private_key=instance.private)
     elif request.method == "GET":
-        request.values.get("")
-        return "Render a form"
-    elif request.method == "POST":
-        return jsonify(private_key=instance.private,
-                       public_key=instance.public)
+        return render_template("key_pair_form.html", form=form)
+    else:
+        return abort(403)
+
+
+@current_app.route("/send-message/discord-oauth/<string: unique_identifier>")
+def send_message_oauth():
+    scope = request.args.get("scope", "identify")
+    discord = make_session(scope=scope)
+    authorization_url, state = discord.authorization_url(AUTHORIZATION_BASE_URL)
+    session["oauth2_state"] = state
+    return redirect(request.url_root + "send-message/")
 
 
 @current_app.route("/add-message-to-queue", methods=["POST"])
@@ -224,17 +234,33 @@ def add_message_to_queue():
     )
 
 
-@current_app.route("/send-message/<string: unique_id>", methods=["GET"])
+@current_app.route("/send-message/<string: unique_id>", methods=["GET", "POST"])
 def send_message(unique_id):
-    # TODO read the docs above for what to do next here
-    num_decode(unique_id)
-    # This is when a message is generated from the form
-    new_id = 1
-    num_encode(new_id)
+    unique_id = num_decode(unique_id)
+    form = RecaptchaForm()
+    if form.validate_on_submit():
+        instance = db_session.query(MessageQueue).get(MessageQueue=unique_id)
+        if instance is None:
+            return abort(404)
+        message = Message()
+        # TODO Call OAuth
+        # TODO call Discord bot to send message
+        return jsonify(success="Check the server to make sure it sent!")
+    elif request.method == "GET":
+        return render_template("send_message.html", form=form)
+    else:
+        return abort(403)
 
 
-@current_app.route("/view-message/<string: unique_id>", methods=["GET"])
+@current_app.route("/view-message/<string: unique_id>", methods=["GET", "POST"])
 def view_message(unique_id):
-    num_decode(unique_id)
-    message = Message.queue.get()
-    decrypt_message(message.message)
+    form = ViewMessageForm()
+    unique_id = num_decode(unique_id)
+    instance = db_session.query(Message.id).get(Message=int(unique_id))
+    if instance is None:
+        return abort(404)
+    if form.validate_on_submit():
+        message = decrypt_message(instance.message, request.values.get("private_key"))
+        return render_template("view_real_message.html", message=message)
+    else:
+        return render_template("view_message.html", message=instance.message)

@@ -23,6 +23,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL"
 ) or sqlite_path
 
+# Recaptcha
+app.config['RECAPTCHA_USE_SSL'] = False
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.getenv("RECAPTCHA_PUBLIC_KEY")
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.getenv("RECAPTCHA_PRIVATE_KEY")
+app.config['RECAPTCHA_OPTIONS'] = {'theme': 'black'}
+
+# Database
 db = SQLAlchemy(app)
 db.create_all()
 migrate = Migrate(app, db)

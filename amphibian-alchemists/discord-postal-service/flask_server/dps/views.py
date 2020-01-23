@@ -6,18 +6,9 @@ from random import randint
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from flask import (
-    abort,
-    current_app,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
+from flask import (abort, current_app, jsonify, redirect, render_template,  # noqa
+                   request, session, url_for)  # noqa
 from requests_oauthlib import OAuth2Session
-from sqlalchemy import exc
 
 from .. import db_session
 from .discord_bot import send_receiver_mail

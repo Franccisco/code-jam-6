@@ -13,8 +13,6 @@ env_path = os.path.join(PROJECT_DIR, ".env")
 DISCORD_PERMISSION_INT = 268658688
 
 
-
-
 if __name__ == "__main__":
     message_queue = Queue()
     app.message_queue = message_queue
@@ -22,5 +20,5 @@ if __name__ == "__main__":
     load_dotenv(dotenv_path=env_path)
     app.run()
     db.create_all()
-    discord_thread = Thread(target=discord_client.run, args=(os.getenv("DISCORD_BOT_TOKEN",))
+    discord_thread = Thread(target=discord_client.run, args=(os.getenv("DISCORD_BOT_TOKEN",)))
     discord_thread.start()

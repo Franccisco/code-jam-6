@@ -7,8 +7,17 @@ Create a new application. We've called it Discord Postal Service. Copy your Clie
 When that's done, clone this repository. In a terminal/cmd, go to the `flask_server` directory and do the following commands:
 
 ```
-flask db migrate
 flask db upgrade
 ```
 
 If you want to add more models, then do `db migrate && db upgrade`. Yoom is also not familiar with Flask, so that may not be all as there was mention of Flask-migrate's limitations.
+
+The flow of urls is the following:
+```
+http://localhost:5000/get-key-pair/{UNIQUE_ID}
+    - This is sent as a DM
+http://localhost:5000/add-message-to-queue
+    - Sends a unique ID as a JSON response. 
+http://localhost:5000/send-message/{UNIQUE_ID}
+    - Login with Discord
+```

@@ -14,8 +14,7 @@ from requests_oauthlib import OAuth2Session
 
 from .. import db_session
 from .forms import RecaptchaForm, SendMessageForm, ViewMessageForm
-from .models import (Message, MessageQueue, PasswordLink, Profile,  # noqa
-                     cities)
+from .models import Message, MessageQueue, PasswordLink, Profile, cities
 
 # fmt: on
 
@@ -171,7 +170,7 @@ def num_decode(s):
     return n
 
 
-@current_app.route("/get-key-pair/<string: unique_id>", methods=["GET", "POST"])
+@current_app.route("/get-key-pair/{string: unique_id}", methods=["GET", "POST"])
 def get_key_pair(unique_id):
     form = RecaptchaForm()
     if form.validate_on_submit():
@@ -192,7 +191,7 @@ def get_key_pair(unique_id):
         return abort(403)
 
 
-@current_app.route("/send-message/discord-oauth/<string: unique_identifier>")
+@current_app.route("/send-message/discord-oauth/{string: unique_id}")
 def send_message_oauth(unique_id):
     scope = request.args.get("scope", "identify")
     discord = make_session(scope=scope)
@@ -213,6 +212,7 @@ def add_message_to_queue():
     You can most certainly remove this route and MessageQueue and
     reconfigure the send_message route to avoid this functionality.
     """
+    print(1)
     message = str(request.json.get("message"))
     if len(message) > 20000:
         return json.dumps({"response": "Too many characters. Delete some."})
@@ -226,7 +226,7 @@ def add_message_to_queue():
     )
 
 
-@current_app.route("/send-message/<string: unique_id>", methods=["GET", "POST"])
+@current_app.route("/send-message/{string: unique_id}", methods=["GET", "POST"])
 def send_message(unique_id):
     unique_id = num_decode(unique_id)
 
@@ -267,7 +267,7 @@ def send_message(unique_id):
         return abort(403)
 
 
-@current_app.route("/view-message/<string: unique_id>", methods=["GET", "POST"])
+@current_app.route("/view-message/{string: unique_id}", methods=["GET", "POST"])
 def view_message(unique_id):
     form = ViewMessageForm()
     unique_id = num_decode(unique_id)
@@ -279,6 +279,7 @@ def view_message(unique_id):
         return render_template("view_real_message.html", message=message)
     else:
         return render_template("view_message.html", message=instance.message)
-      
-def send_reciever_mail(mail_id, receiver_id):
-  current_app.message_queue.put({'mail_id':mail_id, 'reciever_id':reciever_id})
+
+
+def send_receiver_mail(mail_id, receiver_id):
+    current_app.message_queue.put({'mail_id': mail_id, 'receiver_id': receiver_id})

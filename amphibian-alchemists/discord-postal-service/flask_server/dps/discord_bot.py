@@ -93,15 +93,16 @@ async def send_receiver_mail(mail_id, receiver_id):
     if instance is not None:
         channel = client.get_channel(receiver_city)
         await channel.send(f"PONG <@{receiver_id}> {instance.message}")
-        
+
+
 async def handle_flask_data():
     while True:
         try:
             data = client.message_queue.get(block=False)
-            await send_reciever_mail(**data)
+            await send_receiver_mail(**data)
             client.message_queue.task_done()
         except Empty:
             pass
-        asyncio.sleep(1)
+        await asyncio.sleep(1)
         
 client.loop.create_task(handle_flask_data())

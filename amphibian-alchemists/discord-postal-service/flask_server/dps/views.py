@@ -13,7 +13,6 @@ from flask import (abort, current_app, jsonify, redirect, render_template,
 from requests_oauthlib import OAuth2Session
 
 from .. import db_session
-from .discord_bot import send_receiver_mail
 from .forms import RecaptchaForm, SendMessageForm, ViewMessageForm
 from .models import (Message, MessageQueue, PasswordLink, Profile,  # noqa
                      cities)
@@ -280,3 +279,6 @@ def view_message(unique_id):
         return render_template("view_real_message.html", message=message)
     else:
         return render_template("view_message.html", message=instance.message)
+      
+def send_reciever_mail(mail_id, receiver_id):
+  current_app.message_queue.put({'mail_id':mail_id, 'reciever_id':reciever_id})

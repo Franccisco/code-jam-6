@@ -1,13 +1,12 @@
 from random import randint
+import string
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
 
-from .. import db_session
+from .. import db_session, root_url
 from .. import discord_client as client
-from .. import root_url
 from .models import Message, PasswordLink, Profile, cities
-from .views import num_encode
 
 PERMISSIONS = [
     (669690836656848924, "basin-city"),
@@ -23,6 +22,19 @@ PERMISSIONS = [
     (669691110821724161, "springfield"),
     (669691140492099596, "zion"),
 ]
+
+
+def num_encode(n):
+    ALPHABET = string.ascii_uppercase + string.digits + string.ascii_lowercase + "-_"
+    if n < 0:
+        return "$" + num_encode(-n)
+    s = []
+    while True:
+        n, r = divmod(n, len(ALPHABET))
+        s.append(ALPHABET[r])
+        if n == 0:
+            break
+    return "".join(reversed(s))
 
 
 @client.event
@@ -72,7 +84,7 @@ async def on_member_join(member):
     )
 
 
-def send_receiver_mail(mail_id, receiver_id):
+async def send_receiver_mail(mail_id, receiver_id):
     receiver_city = db_session.query(Profile.city).get(Profile=receiver_id)
     instance = db_session.query(Message.id).get(Message=mail_id)
     if instance is not None:

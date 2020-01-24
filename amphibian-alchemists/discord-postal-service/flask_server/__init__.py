@@ -45,17 +45,6 @@ with app.app_context():
 # queue = Queue()
 discord_client = discord.Client()
 
-
-def run_discord():
-    discord_client.run(os.getenv("DISCORD_BOT_TOKEN"))
-    DISCORD_PERMISSION_INT = 268658688
-    while True:
-        pass
-
-
-discord_thread = Thread(target=run_discord)
-
-
 """
 from threading import Thread
 from queue import Queue, Empty

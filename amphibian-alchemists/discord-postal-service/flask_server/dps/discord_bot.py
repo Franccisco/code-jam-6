@@ -8,7 +8,7 @@ from Crypto import Random
 from Crypto.PublicKey import RSA
 
 from .. import db_session, root_url
-from .. import discord_client as client
+from .. import discord_client
 from .models import Message, PasswordLink, Profile, cities
 
 PERMISSIONS = [
@@ -40,9 +40,9 @@ def num_encode(n):
     return "".join(reversed(s))
 
 
-@client.event
+@discord_client.event
 async def on_ready():
-    print("We have logged in as {0.user}".format(client))
+    print("We have logged in as {0.user}".format(discord_client))
 
 
 def generate_keys():
@@ -52,7 +52,7 @@ def generate_keys():
     return private_key, public_key
 
 
-@client.event
+@discord_client.event
 async def on_member_join(member):
     """
     Gets new member's username. Save it. Send user private and public key for
@@ -91,18 +91,18 @@ async def send_receiver_mail(mail_id, receiver_id):
     receiver_city = db_session.query(Profile.city).get(Profile=receiver_id)
     instance = db_session.query(Message.id).get(Message=mail_id)
     if instance is not None:
-        channel = client.get_channel(receiver_city)
+        channel = discord_client.get_channel(receiver_city)
         await channel.send(f"PONG <@{receiver_id}> {instance.message}")
 
 
 async def handle_flask_data():
     while True:
         try:
-            data = client.message_queue.get(block=False)
+            data = discord_client.message_queue.get(block=False)
             await send_receiver_mail(**data)
-            client.message_queue.task_done()
+            discord_client.message_queue.task_done()
         except Empty:
             pass
         await asyncio.sleep(1)
         
-client.loop.create_task(handle_flask_data())
+discord_client.loop.create_task(handle_flask_data())

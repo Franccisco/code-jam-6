@@ -14,11 +14,15 @@ DISCORD_PERMISSION_INT = 268658688
 
 
 if __name__ == "__main__":
-    message_queue = Queue()
-    app.message_queue = message_queue
-    discord_client.message_queue = message_queue
+    # Setup queue
+    # message_queue = Queue()
+    # app.message_queue = message_queue
+    # discord_client.message_queue = message_queue
+    # Load Flask stuff
     load_dotenv(dotenv_path=env_path)
     app.run()
     db.create_all()
-    discord_thread = Thread(target=discord_client.run, args=(os.getenv("DISCORD_BOT_TOKEN",)))
-    discord_thread.start()
+    # Begin Discord bot
+    discord_client.run(os.getenv("DISCORD_BOT_TOKEN"))
+    # discord_thread = Thread(target=discord_client.run, args=(os.getenv("DISCORD_BOT_TOKEN")))
+    # discord_thread.start()

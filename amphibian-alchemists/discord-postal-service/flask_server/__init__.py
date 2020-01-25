@@ -36,49 +36,12 @@ migrate = Migrate(app, db)
 engine = create_engine(sqlite_path, echo=app.debug)
 db_session = orm.Session(engine)
 
+# Celery setup
+
+
 with app.app_context():
     queue = Queue()
     from .dps import views
 
 # Setting up Discord Bot
-# queue = Queue()
 discord_client = discord.Client()
-
-"""
-from threading import Thread
-from queue import Queue, Empty
-import time, random
-
-q = Queue()
-
-def func1():
-    while True:
-        for _ in range(10):
-            q.put(random.randint(0,1000))
-        q.join()
-
-def func2():
-    while True:
-        try:
-            i = q.get()
-            print('Processing ', i)
-            time.sleep(1)
-            q.task_done()
-        except Empty:pass
-
-if __name__ == '__main__':
-    t1 = Thread(target=func1)
-    t2 = Thread(target=func2)
-    t1.start()
-    t2.start()
-    
-try:
-  item = q.get()
-  # do stuff
-  q.task_done()
-except Empty:
-  # queue is empty, do other stuff
-  pass
-  
-q.get(block=False)
-"""

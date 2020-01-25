@@ -1,6 +1,7 @@
 import os
 from queue import Queue
 
+from celery import Celery
 import discord
 from flask import Flask
 from flask_migrate import Migrate
@@ -36,9 +37,16 @@ migrate = Migrate(app, db)
 engine = create_engine(sqlite_path, echo=app.debug)
 db_session = orm.Session(engine)
 
+
 # Celery setup
+app.config.update(
+    CELERY_BROKER_URL='redis://localhost:6379',
+    CELERY_RESULT_BACKEND='redis://localhost:6379'
+)
+celery = Celery(app.name, broker=app.config["CELERY_BROKER_URL"])
+celery.conf.update(app.config)
 
-
+# Misc
 with app.app_context():
     queue = Queue()
     from .dps import views

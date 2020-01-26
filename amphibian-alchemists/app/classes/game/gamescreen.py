@@ -110,6 +110,10 @@ class EnigmaOutput(TextInput):
         if keycode[1] == "backspace":
             return True
 
+    def keyboard_on_key_up(self, window, keycode):
+        if keycode[1] == "backspace":
+            return True
+
     def insert_text(self, substring, from_undo=False):
         if substring.upper() in App.get_running_app().keys:
             # Autoinput

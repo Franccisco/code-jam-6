@@ -106,6 +106,10 @@ def setup_new_game_settings():
 
 
 class EnigmaOutput(TextInput):
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if keycode[1] == "backspace":
+            return True
+
     def insert_text(self, substring, from_undo=False):
         if substring.upper() in App.get_running_app().keys:
             # Autoinput

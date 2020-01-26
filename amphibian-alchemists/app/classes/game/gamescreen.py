@@ -114,6 +114,12 @@ class EnigmaOutput(TextInput):
         if keycode[1] == "backspace":
             return True
 
+    def select_text(self, start, end):
+        pass
+
+    def on_touch_move(self, touch):
+        pass
+
     def insert_text(self, substring, from_undo=False):
         if substring.upper() in App.get_running_app().keys:
             # Autoinput
